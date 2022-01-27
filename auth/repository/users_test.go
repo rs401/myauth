@@ -167,12 +167,147 @@ func TestSaveAndGetById(t *testing.T) {
 	})
 }
 
+func TestSaveAndGetByEmail(t *testing.T) {
+	cfg := db.NewConfig()
+	conn, err := db.NewConnection(cfg)
+	assert.NoError(t, err)
+
+	// Guaranty a user exists
+	testSave := struct {
+		name    string
+		db      *gorm.DB
+		user    *models.User
+		wantErr bool
+	}{
+		name: "Save User",
+		db:   conn.DB(),
+		user: &models.User{
+			Name:     "TestUser3",
+			Email:    "testuser3@test.com",
+			Password: []byte("testpassword"),
+		},
+		wantErr: false,
+	}
+
+	t.Run(testSave.name, func(t *testing.T) {
+		r := &usersRepository{
+			db: testSave.db,
+		}
+		if err := r.Save(testSave.user); (err != nil) != testSave.wantErr {
+			t.Errorf("usersRepository.Save() error = %v, wantErr %v", err, testSave.wantErr)
+		}
+	})
+
+	testGetEmail := struct {
+		name    string
+		db      *gorm.DB
+		email   string
+		wantErr bool
+	}{
+		name:    "Get User By Email",
+		db:      conn.DB(),
+		email:   "testuser3@test.com",
+		wantErr: false,
+	}
+
+	t.Run(testGetEmail.name, func(t *testing.T) {
+		r := &usersRepository{
+			db: testGetEmail.db,
+		}
+		if _, err := r.GetByEmail(testGetEmail.email); (err != nil) != testGetEmail.wantErr {
+			t.Errorf("usersRepository.GetByEmail() error = %v, wantErr %v", err, testGetEmail.wantErr)
+		}
+	})
+}
+
+func TestUpdate(t *testing.T) {
+	cfg := db.NewConfig()
+	conn, err := db.NewConnection(cfg)
+	assert.NoError(t, err)
+
+	testUser := &models.User{
+		Name:     "TestUser4",
+		Email:    "testuser4@test.com",
+		Password: []byte("testpassword"),
+	}
+	// Guaranty a user exists
+	testSave := struct {
+		name    string
+		db      *gorm.DB
+		user    *models.User
+		wantErr bool
+	}{
+		name:    "Save User",
+		db:      conn.DB(),
+		user:    testUser,
+		wantErr: false,
+	}
+
+	t.Run(testSave.name, func(t *testing.T) {
+		r := &usersRepository{
+			db: testSave.db,
+		}
+		if err := r.Save(testSave.user); (err != nil) != testSave.wantErr {
+			t.Errorf("usersRepository.Save() error = %v, wantErr %v", err, testSave.wantErr)
+		}
+	})
+
+	updatedUser := &models.User{}
+	updatedUser.ID = testUser.ID
+	updatedUser.Name = testUser.Name
+	updatedUser.Email = "testuser5@test.com"
+
+	testUpdate := struct {
+		name    string
+		db      *gorm.DB
+		user    *models.User
+		email   string
+		wantErr bool
+	}{
+		name:    "Update User",
+		db:      conn.DB(),
+		user:    updatedUser,
+		email:   "testuser5@test.com",
+		wantErr: false,
+	}
+
+	t.Run(testUpdate.name, func(t *testing.T) {
+		r := &usersRepository{
+			db: testUpdate.db,
+		}
+		if err := r.Update(testUpdate.user); (err != nil) != testUpdate.wantErr {
+			t.Errorf("usersRepository.Update() error = %v, wantErr %v", err, testUpdate.wantErr)
+		}
+		resultUser, err := r.GetByEmail(testUpdate.email)
+		if (err != nil) != testUpdate.wantErr {
+			t.Errorf("usersRepository.Update() error = %v, wantErr %v", err, testUpdate.wantErr)
+		}
+		if resultUser.Email != testUpdate.email {
+			t.Error("usersRepository.Update() Updated email does not match.")
+		}
+	})
+}
+
+func TestDelete(t *testing.T) {
+	cfg := db.NewConfig()
+	conn, err := db.NewConnection(cfg)
+	assert.NoError(t, err)
+
+	var user models.User
+	tx := conn.DB().Find(&user)
+	assert.NoError(t, tx.Error)
+	var id uint = user.ID
+	r := &usersRepository{
+		db: conn.DB(),
+	}
+	err = r.Delete(id)
+	assert.NoError(t, err)
+}
+
 func TestDeleteAll(t *testing.T) {
 	cfg := db.NewConfig()
 	conn, err := db.NewConnection(cfg)
-	if err != nil {
-		log.Fatalf("Error Connecting to database: %v\n", err)
-	}
+	assert.NoError(t, err)
 
 	testDelAll := struct {
 		name    string

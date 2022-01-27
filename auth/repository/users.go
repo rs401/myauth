@@ -56,7 +56,7 @@ func (r *usersRepository) Delete(id uint) error {
 	if user.ID == 0 {
 		return ErrorBadID
 	}
-	return r.db.Delete(user).Error
+	return r.db.Delete(&user).Error
 }
 
 func (r *usersRepository) DeleteAll() error {
