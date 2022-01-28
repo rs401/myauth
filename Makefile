@@ -5,7 +5,7 @@ help: ## Show this help
 
 
 build-auth: ## build the Auth service
-	@go build -o bin/authsvc auth/main.go
+	@go build -o auth/authsvc auth/main.go
 
 test: ## Run all tests
 	@go test -v -cover ./...

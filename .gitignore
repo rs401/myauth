@@ -2,3 +2,4 @@ bin
 .env
 .env.dev
 *.BAK
+authsvc

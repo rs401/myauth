@@ -17,6 +17,7 @@ var (
 	ErrInvalidEmail    = errors.New("email not valid")
 	ErrEmailExists     = errors.New("email already exists")
 	ErrNameExists      = errors.New("name already exists")
+	ErrNotFound        = errors.New("user not found")
 	ErrInvalidPassword error
 
 	MaxPwLen int = 50
@@ -108,4 +109,8 @@ func IsValidPassword(s string) bool {
 
 	// No errors
 	return true
+}
+
+func NormalizeEmail(email string) string {
+	return strings.TrimSpace(strings.ToLower(email))
 }
