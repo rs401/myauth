@@ -14,13 +14,13 @@ message User {
 }
 
 message GetUserRequest {
-    string id = 1;
+    uint64 id = 1;
 }
 
 message ListUsersRequest {}
 
 message DeleteUserResponse {
-    string id = 1;
+    uint64 id = 1;
 }
 
 message SignInRequest {

@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	err := godotenv.Load("../.env")
+	err := godotenv.Load("../.env.dev")
 	if err != nil {
 		log.Fatalf("Error loading environment variables: %v", err)
 	}
